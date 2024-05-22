@@ -6,6 +6,7 @@ if not cap.isOpened():
     exit()
 
 _, img_zero_raw = cap.read()
+print(img_zero_raw.shape)
 img_zero = img_zero_raw[60:-200, 80:-100]
 while True:
     # Capture frame-by-frame

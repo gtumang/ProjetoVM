@@ -5,8 +5,8 @@ import numpy as np
 from math import cos, sin, pi
 import sys
 
-OFFSET_U = int(308.4772644042969)-272
-OFFSET_V = int(162.7045440673828)-95
+OFFSET_CORTE_U = 80
+OFFSET_CORTE_V = 60
 
 # Homogenea C para B
 # Rx(90 graus)
@@ -25,8 +25,15 @@ f = 3.67
 ro_w = 3.98e-3
 ro_h = 3.98e-3
 
-p_x = 300
-p_y = 300
+
+def correcao(pos) -> tuple:
+    return 1.7*pos+10
+
+
+# alterar esses valores em pixel para mover o robo
+# cuidado ao mexer nas outras coisas
+p_x = 230
+p_y = 35
 
 posTela_C = funcKukacador.calculaPosTelaC(p_x, p_y, 1270, f, ro_h, ro_w)
 posTela_C.append(1)
