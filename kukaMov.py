@@ -3,12 +3,19 @@ import re
 
 
 class Kuka:
+    x_robo_max = 430
+    z_robo_max = 320
+    x_robo_min = -100
+    z_robo_min = 89
+
+    y_default = -200
+
     def __init__(self, ip, port) -> None:
         self._ip = ip
         self._port = port
 
-        self.home = (300, 0, 200, 0, 0, -175)  # home coordinates
-        self.offset_x = -40  # mm
+        self.home = (300, -200, 200, 0, 0, -175)  # home coordinates
+
 
     def connect(self) -> bool:
         self.client = openshowvar(self._ip, self._port)
@@ -35,7 +42,6 @@ class Kuka:
 
     def setPos(self, pos) -> None:
         self._x, self._y, self._z, self._A, self._B, self._C = pos
-        self._x += self.offset_x
         self.updatePos()
 
     def getPos(self) -> tuple:

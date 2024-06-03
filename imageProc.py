@@ -11,6 +11,13 @@ def pega_mascara_vermelha(img_hsv):
     red_mask = __red_mask1+__red_mask2
     return red_mask
 
+def pega_mascara_verde(img_hsv):
+    __green_lower = np.array([36, 25, 25], dtype=np.uint8)
+    __green_upper = np.array([86, 255, 255], dtype=np.uint8)
+
+    __green_mask = cv.inRange(img_hsv, __green_lower, __green_upper)
+    return __green_mask
+
 def calibrate(img)->float:
   img_hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
   red_mask = pega_mascara_vermelha(img_hsv)

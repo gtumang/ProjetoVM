@@ -1,99 +1,54 @@
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn import datasets, linear_model
+import matplotlib.pyplot as plt
 import cv2 as cv
 import imageProc
 import numpy as np
 import sys
+from sklearn.linear_model import LinearRegression
+import pandas as pd
 
 DIST_X_MM = 880
 DIST_Y_MM = 492
 
 
-cap = cv.VideoCapture(cv.CAP_DSHOW)
+imagePoints = [(41.264610290527344, 46.855491638183594), (84.14583587646484, 47.1357536315918),
+               (126.93546295166016, 46.61134719848633), (39.470001220703125, 87.5546646118164), (82.65890502929688, 88.74637603759766), (125.48236083984375, 87.98776245117188), (37.778141021728516, 129.0103302001953), (81.37162780761719, 129.9384765625), (123.58495330810547, 130.00584411621094), (79.67622375488281, 173.16761779785156)]
 
-_, img_calib = cap.read()
-img_calib_cropped = img_calib[40:-170, 70:-100]
-img_calib_hsv = cv.cvtColor(img_calib_cropped, cv.COLOR_BGR2HSV)
+worldPoints = [(0, 0), (50, 0), (100, 0),
+               (0, 50), (50, 50), (100, 50), (0, 100), (50, 100), (100, 100), (50, 150)]
 
-red_mask = imageProc.pega_mascara_vermelha(img_calib_hsv)
+X_image = [x[0] for x in imagePoints]
+X_world = [y[0] for y in worldPoints]
 
-cv.imshow('original', img_calib)
-cv.imshow('cortada', img_calib_cropped)
-cv.imshow('mascara vermalha', red_mask)
+Y_image = [x[1] for x in imagePoints]
+Y_world = [y[1] for y in worldPoints]
 
-# Set up the detector with default parameters.
-params = cv.SimpleBlobDetector_Params()
-# Set blob color (0=black, 255=white)
-params.filterByColor = True
-params.blobColor = 255
-# Filter by Area
-params.filterByArea = False
-# params.minArea = 1000
-# params.maxArea = 20000
-# Filter by Circularity
-params.filterByCircularity = False
-# params.minCircularity = 0.8
-# #params.maxCircularity = 1.2
-# Filter by Convexity
-params.filterByConvexity = False
-# params.minConvexity = 0.87
-# params.maxConvexity = 1
-# Filter by Inertia
-params.filterByInertia = False
-# params.minInertiaRatio = 0.01
-# params.maxInertiaRatio = 1
-# Set up the detector with default parameters.
-detector = cv.SimpleBlobDetector_create(params)
+X_dict = {'X': X_image, 'Y': X_world}
+Y_dict = {'X': Y_image, 'Y': Y_world}
 
-# Detect blobs
-KP = detector.detect(red_mask)
-print("Nro de blobs: ", len(KP))
+df_x = pd.DataFrame(X_dict)
+df_y = pd.DataFrame(Y_dict)
+print(df_x)
 
-if len(KP)<4:
-    sys.exit()
 
-calib_points = []
+# find line of best fit
+a_x, b_x = np.polyfit(df_x['X'], df_x['Y'], 1)
+a_y, b_y = np.polyfit(df_y['X'], df_y['Y'], 1)
 
-i = 1
-for KPi in KP:
-    # print("Blob_", i, ": X= ", KPi.pt[0], " Y= ",
-    #       KPi.pt[1], " size=", KPi.size**2, " ang=", KPi.angle)
+print(f"X: {a_x}x+{b_x}")
+print(f"Y: {a_y}x+{b_y}")
 
-    calib_points.append((KPi.pt[0], KPi.pt[1]))
+fig = plt.figure(figsize=(16, 9))
 
-    i = i+1
+fig.add_subplot(1, 2, 1)
+plt.title('X image x world')
+plt.scatter(df_x['X'], df_x['Y'])
+plt.plot(df_x['X'], a_x*df_x['X']+b_x)
 
-min_norm = 100000
+fig.add_subplot(1, 2, 2)
+plt.title('Y image x world')
+plt.scatter(df_y['X'], df_y['Y'])
+plt.plot(df_y['X'], a_y*df_y['X']+b_y)
 
-min_x = 0
-min_y = 0
-
-for point in calib_points:
-    norm = (point[0]**2+point[1]**2)**(1/2)
-    if norm<min_norm:
-        min_x = point[0]
-        min_y = point[1]
-
-origin = (min_x,min_y)
-
-# print(origin)
-
-p1 = origin
-p2 = 0
-p3 = 0
-p4 = 0
-for p in calib_points:
-    if p[0] > 100 and p[1] < 100:
-        p2 = (p[0],p[1])
-    elif p[0]<100 and p[1]>100:
-        p3 = (p[0],p[1])
-    elif p[0]>100 and p[1]>100:
-        p4 = (p[0],p[1])
-
-print(p1,p2,p3,p4)
-
-dist_x_px = p2[0]-p1[0]
-dist_y_px = p3[1]-p1[1]
-
-calib_x = DIST_X_MM/dist_x_px
-calib_y = DIST_Y_MM/dist_y_px
-
-cv.waitKey(0)
+plt.show()

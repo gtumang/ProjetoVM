@@ -27,9 +27,9 @@ x_value = float(re.findall(r'X ([\d.-]+)', data_string)[0])
 y_value = float(re.findall(r'Y ([\d.-]+)', data_string)[0])
 z_value = float(re.findall(r'Z ([\d.-]+)', data_string)[0])
 
-# print("Valor de X do robo:", x_value)
-# print("Valor de Y do robo:", y_value)
-# print("Valor de Z do robo:", z_value)
+print("Valor de X do robo:", x_value)
+print("Valor de Y do robo:", y_value)
+print("Valor de Z do robo:", z_value)
 
 client.write('$OV_PRO', '5', debug=False)  # sets the speed
 
@@ -41,71 +41,35 @@ client.write('$OV_PRO', '5', debug=False)  # sets the speed
 # B = 0
 # C = -175
 
-# pontos meio:
-# 8: [  16.82926871,
-# -138.884677,
-# 1317.17096396]
-# erro: y=4mm, x=40mm
+x_robo_max = 430
+z_robo_max = 320
+x_robo_min = -100
+z_robo_min = 89
 
-# 5:
-# [57.96082591,
-#  -54.20936614,
-#  1266.78254289]
-# erro: y=2mm,x=25mm
+imagePoints = [[211.45245361328125, 173.94552612304688],
+               [235.53671264648438, 174.5],
+               [260.072509765625, 174.4642791748047],
+               [211.5, 149.0],
+               [236.5, 149.90695190429688],
+               [261.42425537109375, 149.0357208251953],
+               [211.4801788330078, 124.01821899414062],
+               [236.53614807128906, 124.53313446044922],
+               [261.5, 124.0]]
 
-# 2:
-# [-1.57934635,
-#  -53.68170028,
-#  1275.23845624]
-# erro: y=2mm, x=25mm
+posImage_list = imagePoints[3]
+posImage_list.append(1)
 
-# pontos esquerda:
-# 7:
-# [-68.41826589,
-#  -150.90859058,
-#  1311.17035087]
-# erro: x=15mm,y=3mm
-# 4:
-# [-64.57410669,
-#  -101.96532622,
-#  1298.63383601]
-# erro:x=15mm, y=3mm
-# 1:
-# [-57.89615511,
-#  -52.4823431,
-#  1288.56890307]
-# erro: x=20mm,y=1mm
-
-# Pontos direita:
-# 3:
-# [57.96082591,
-#  -54.20936614,
-#  1266.78254289]
-
-# 6:
-# [57.7614113,
-#  -101.10507864,
-#  1278.05144644]
-
-# 9:
-[56.97577122,
- -146.52463578,
- 1291.68422494]
-
-posC = np.array((50,
-                 -150,
-                 1300,
-                 1))
+posImage = np.array([331.56097412109375, 137.4261474609375, 1300, 1])
 
 
-def ajuste_x(pos_x):
-    return -0.17262662831294961*pos_x-25
+def image2world(point):
+    return np.array((1.98922818*point[0]-468.36345474, 1.93554415*point[1]-389.37186598, 1300, 1))
 
 
-offset_x = ajuste_x(posC[0])
+posC = image2world(posImage)
 
 
-print(offset_x)
+# print(offset_x)
 
 # posC[0] = posC[0]+offset_x
 
@@ -120,11 +84,15 @@ bH_c = np.array([[1,     0,         0,        250],
 
 posB = np.matmul(bH_c, posCt)
 
+offset_x = -27
 offset_z = 95
 
-x_robo = posB[0]
-y_default = -20
-z_robo = posB[2]+offset_z
+# x_robo = posB[0]+offset_x
+# y_default = -200
+# z_robo = posB[2]+offset_z
+x_robo = x_robo_min
+y_default = -200
+z_robo = z_robo_max
 
 A = 0
 B = 0
