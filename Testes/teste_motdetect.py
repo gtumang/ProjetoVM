@@ -5,8 +5,7 @@ path = 'C:/Users/gabri/OneDrive/Documents/ProjetoVM/imgs_2'
 # Initialize video capture
 cap = cv2.VideoCapture(cv2.CAP_DSHOW)
 
-_,img_calib = cap.read()
-
+_, img_calib = cap.read()
 
 
 # Initialize background subtractor
@@ -34,7 +33,7 @@ while True:
         area = cv2.contourArea(contour)
         x, y, w, h = cv2.boundingRect(contour)
         # Filter out small objects
-        if (w*h > 650) and (w*h < 900):
+        if (w*h > 650) and (w*h < 1200):
             cv2.imshow('detect', frame[y:y+h, x:x+w])
             detects.append(frame[y:y+h, x:x+w])
 
@@ -47,9 +46,9 @@ while True:
 
 # Release video capture and destroy windows
 i = 0
-for img in detects:
-    cv2.imwrite(os.path.join(path, f'detect_{i}.png'), img)
-    i += 1
+# for img in detects:
+#     cv2.imwrite(os.path.join(path, f'detect_{i}.png'), img)
+#     i += 1
 
 print(len(detects))
 
